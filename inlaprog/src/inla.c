@@ -16685,7 +16685,7 @@ int inla_parse_ffield(inla_tp * mb, dictionary * ini, int sec)
 
 	case F_AR:
 	{
-		int ntheta, order;
+		int ntheta, order, ntheta_ref = mb->ntheta;
 
 		order = mb->f_order[mb->nf];
 		ntheta = mb->f_ntheta[mb->nf] = mb->f_order[mb->nf] + 1;
@@ -16841,6 +16841,7 @@ int inla_parse_ffield(inla_tp * mb, dictionary * ini, int sec)
 				}
 			}
 		}
+		mb->f_ntheta[mb->nf] = mb->ntheta - ntheta_ref;
 		break;
 	}
 
@@ -30667,19 +30668,13 @@ int main(int argc, char **argv)
 
 #define BUGS_intern(fp) fprintf(fp, "Report bugs to <help@r-inla.org>\n")
 #define BUGS BUGS_intern(stdout)
-	int i, verbose = 0, silent = 0, opt, report = 0, arg, nt, err, ncpu, enable_core_file = 0;
+	int i, verbose = 0, silent = 0, opt, report = 0, arg, nt, err, enable_core_file = 0;
 	char *program = argv[0];
 	double time_used[3];
 	inla_tp *mb = NULL;
 
-	ncpu = inla_ncpu();
-	if (ncpu > 0) {
-		omp_set_num_threads(ncpu);
-	} else {
-		omp_set_num_threads(1);
-	}
 	GMRFLib_openmp = Calloc(1, GMRFLib_openmp_tp);
-	GMRFLib_openmp->max_threads = IMAX(ncpu, omp_get_max_threads());
+	GMRFLib_openmp->max_threads = omp_get_max_threads();
 	GMRFLib_openmp->strategy = GMRFLib_OPENMP_STRATEGY_DEFAULT;
 	GMRFLib_openmp_implement_strategy(GMRFLib_OPENMP_PLACES_DEFAULT, NULL, NULL);
 

@@ -7309,10 +7309,12 @@
     stop("This should not happen")
 }
 
-`inla.is.model` = function(model, section = names(inla.models()),
+`inla.is.model` = function(model, section = NULL,
         stop.on.error = TRUE, ignore.case = FALSE)
 {
-    section = match.arg(section)
+    mm = inla.models()
+    if (is.null(section))
+        stop("No section given; please fix...")
     mm = inla.models()
     models = names((mm[ names(mm) == section ])[[1]])
 
@@ -7350,15 +7352,14 @@
 
 `inla.model.properties` = function(
         model,
-        section = c("..invalid.model..", names(inla.models())),
+        section = NULL,
         stop.on.error = TRUE,
         ignore.case = FALSE)
 {
-    section = match.arg(section)
-    if (section == "..invalid.model..")
+    if (is.null(section))
         stop("No section given; please fix...")
-
     mm = inla.models()
+    section = match.arg(section, names(mm))
     m = inla.model.properties.generic(inla.trim.family(model),
         (mm[names(mm) == section])[[1]],
         stop.on.error, ignore.case,
